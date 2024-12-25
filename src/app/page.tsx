@@ -1,7 +1,38 @@
+"use client";
 import Button from "./components/Button";
 import NavBar from "./components/NavBar";
 
+import React, { useState, useEffect } from 'react';
+
+const servicos = [
+  { src: "./img/Servicos/blowlamination.jpg", nome: "Blow Lamination" },
+  { src: "./img/Servicos/Epilacao.png", nome: "Epilação" },
+  { src: "./img/Servicos/cilios.png", nome: "Cílios" },
+  { src: "./img/Servicos/DesingcomHenna.jpg", nome: "Design com Henna" },
+  { src: "./img/Servicos/LAsh.jpg", nome: "Lash" },
+  { src: "./img/Servicos/Desing.png", nome: "Design" },
+];
+
+const preloadImages = (imageArray: { src: string, nome: string }[]) => {
+  imageArray.forEach((image) => {
+    const img = new Image();
+    img.src = image.src;
+  });
+};
+
 export default function Home() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    preloadImages(servicos);
+
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % servicos.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <>
       <section>
@@ -44,12 +75,19 @@ export default function Home() {
           </div>
 
           <p className="text-center p-3 text-xl md:text-2xl font-semibold">
-            Formação
+            Principais Servicos
           </p>
 
           <div>
-            <div className="flex flex-col items-center md:items-start text-justify w-full md:w-2/3 px-4">
-              
+            <div className="flex flex-col items-center">
+              <img
+                src={servicos[currentImageIndex].src}
+                alt={servicos[currentImageIndex].nome}
+                className="transition-opacity duration-1000 opacity-100 rounded-lg shadow-lg w-full md:w-1/2"
+              />
+              <p className="text-center p-3 text-lg md:text-xl font-medium">
+                {servicos[currentImageIndex].nome}
+              </p>
             </div>
           </div>
         </div>
