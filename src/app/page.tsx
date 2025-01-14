@@ -1,7 +1,7 @@
 "use client";
+import React, { useEffect, useRef, useState } from "react";
 import Button from "./components/Button";
 import NavBar from "./components/NavBar";
-import React, { useState, useEffect } from "react";
 
 const servicos = [
   { src: "./img/Servicos/blowlamination.jpg", nome: "Blow Lamination" },
@@ -12,32 +12,33 @@ const servicos = [
   { src: "./img/Servicos/Desing.png", nome: "Design" },
 ];
 
-const preloadImages = (imageArray: { src: string; nome: string }[]) => {
-  imageArray.forEach((image) => {
-    const img = new Image();
-    img.src = image.src;
-  });
-};
-
 export default function Home() {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    preloadImages(servicos);
+    const carousel = carouselRef.current;
+    let scrollInterval: NodeJS.Timeout;
 
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % servicos.length);
-    }, 3000);
+    if (!isPaused && carousel) {
+      scrollInterval = setInterval(() => {
+        carousel.scrollLeft += 1;
+        if (carousel.scrollLeft >= carousel.scrollWidth - carousel.clientWidth) {
+          carousel.scrollLeft = 0;
+        }
+      }, 20);
+    }
 
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      if (scrollInterval) clearInterval(scrollInterval);
+    };
+  }, [isPaused]);
 
   return (
     <>
       <section className="bg-gradient-to-b from-pink-50 to-pink-100 text-gray-800 min-h-screen">
         <NavBar />
         <div className="flex flex-col items-center p-6 md:p-12 space-y-8">
-          {/* Logo e Botão */}
           <div className="flex flex-col items-center">
             <img
               src="./img/logo.png"
@@ -51,19 +52,21 @@ export default function Home() {
               <Button />
             </a>
           </div>
-
-          {/* Quem Sou Eu */}
           <p className="text-center text-2xl md:text-3xl font-bold">Quem sou eu?</p>
           <div className="flex flex-col md:flex-row items-center justify-between w-full gap-8">
             <div className="text-base md:text-lg leading-relaxed text-gray-700 px-4 md:w-2/3">
               <p>
-                Sou Edvânia, empreendedora, designer de sobrancelhas, designer de cílios e epiladora. Sou apaixonada pelo meu trabalho e mãe de três filhos maravilhosos.
+                Sou Edvânia, empreendedora, designer de sobrancelhas, designer de cílios e epiladora.
+                Sou apaixonada pelo meu trabalho e mãe de três filhos maravilhosos.
               </p>
               <p className="mt-4">
-                Comecei minha trajetória na área da beleza há cerca de três anos, atuando inicialmente como manicure. Com o tempo, descobri minha paixão pelas sobrancelhas, que ganharam meu coração. Mais recentemente, me aventurei no mundo da epilação e dos cílios, e foi aí que tive a certeza de estar no lugar certo, fazendo exatamente o que amo.
+                Comecei minha trajetória na área da beleza há cerca de três anos, atuando inicialmente
+                como manicure. Com o tempo, descobri minha paixão pelas sobrancelhas, que ganharam meu
+                coração.
               </p>
               <p className="mt-4">
-                Tenho um olhar atento aos detalhes e um senso apurado de design, sempre buscando superar as expectativas de minhas clientes. Sou profundamente grata a cada cliente maravilhosa que me acompanha desde o início, me incentivando a crescer e buscar sempre o melhor.
+                Tenho um olhar atento aos detalhes e um senso apurado de design, sempre buscando superar
+                as expectativas de minhas clientes.
               </p>
             </div>
             <div className="w-full md:w-1/3 flex justify-center">
@@ -74,20 +77,30 @@ export default function Home() {
               />
             </div>
           </div>
-
-          {/* Serviços */}
           <p className="text-center text-2xl md:text-3xl font-bold">Principais Serviços</p>
-          <div className="flex flex-col items-center">
-            <div className="w-full md:w-2/3">
-              <img
-                src={servicos[currentImageIndex].src}
-                alt={servicos[currentImageIndex].nome}
-                className="rounded-lg shadow-lg w-full transition-all duration-1000"
-              />
+          <div
+            className="flex overflow-hidden w-full justify-center mt-8 relative"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            ref={carouselRef}
+          >
+            <div className="flex space-x-4">
+              {servicos.map((servico, index) => (
+                <div
+                  key={index}
+                  className="relative group cursor-pointer flex-shrink-0 transform transition-transform duration-300 hover:scale-110"
+                >
+                  <img
+                    src={servico.src}
+                    alt={servico.nome}
+                    className="rounded-lg shadow-lg w-48 md:w-64"
+                  />
+                  <p className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full text-center bg-black bg-opacity-70 text-white px-2 py-1 text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                    {servico.nome}
+                  </p>
+                </div>
+              ))}
             </div>
-            <p className="text-center mt-4 text-lg md:text-xl font-medium">
-              {servicos[currentImageIndex].nome}
-            </p>
           </div>
         </div>
       </section>
